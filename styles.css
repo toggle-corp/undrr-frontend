@@ -1,0 +1,54 @@
+* {
+    box-sizing: border-box;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 4rem;
+    font-family: 'Noto Sans', sans-serif;
+}
+
+.wrapper {
+    position: relative;
+}
+
+.legend {
+    position: absolute;
+    right: 1rem;
+    bottom: 2rem;
+    background-color: #fff;
+    padding: 0.8rem;
+    box-shadow: 0 2px 5px -2px rgba(0, 0, 0, .4);
+    width: 10rem;
+}
+
+h2 {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #e04656;
+    margin-bottom: 0.5rem;
+}
+
+#legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+#map-container {
+    width: 100%;
+    height: 50rem;
+    z-index: 0;
+}
+
+#main-heading {
+    margin: 0;
+    font-weight: 400;
+}
+

@@ -235,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     map.on('load', () => {
+        console.info(map?.style?._layers);
         map.setLayoutProperty(
             'admin-2-highlight',
             'visibility',
@@ -272,6 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'line-width': 5,
             },
         });
+
         map.on('mouseover', 'admin-2-highlight', (e) => {
             const features = e.features[0];
             if (emdat_affectedAreas.findIndex(a => a === features.properties.shapeName) !== -1) {
@@ -286,11 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         '#f00000',
                         '#eaeaea',
                     ],
-                );
-                map.setLayoutProperty(
-                    'admin-2-highlight',
-                    'text-field',
-                    features.properties.shapeName
                 );
             }
         });

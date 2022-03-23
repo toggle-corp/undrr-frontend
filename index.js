@@ -1,4 +1,4 @@
-const data = {
+const noaa_data = {
     "id": 21086,
     "country_details": {
         "id": 96,
@@ -117,6 +117,48 @@ const data = {
     "country": 96
 }
 
+const emdat_data = {
+    "id": 21027,
+    "country_details": {
+        "id": 96,
+        "name": "Fiji",
+        "iso3": "FJI"
+    },
+    "source_display": "Emdat",
+    "event_id": "2021-0070-FJI",
+    "event_title": "Tropical cyclone 'Ana'",
+    "glide_number": null,
+    "event_description": null,
+    "event_subject": null,
+    "hazard_type": "METEOROLOGICAL AND HYDROLOGICAL",
+    "hazard_cluster": "Wind-Related",
+    "specific_hazard": "Tropical Cyclone (Cyclonic Wind, Rain [Storm] Surge)",
+    "subtype": null,
+    "event_start_date": "2021-01-30",
+    "event_end_date": "2021-01-31",
+    "event_duration": 2,
+    "latitude": null,
+    "longitude": null,
+    "geo_description": "Ba, Nadroga & Navosa, Naitasiri, Namosi, Ra, Rewa, Serua, Tailevu (Adm2).",
+    "admin1": "",
+    "admin1_pcode": "",
+    "admin2": "'Ba', 'Nadroga & Navosa', 'Naitasiri', 'Namosi', 'Ra', 'Rewa', 'Serua', 'Tailevu'",
+    "admin2_pcode": "",
+    "admin3": null,
+    "admin3_pcode": null,
+    "location_description": "Viti levu",
+    "source": "emdat",
+    "geo_coordinates": null,
+    "unit": null,
+    "value": null,
+    "number_of_people_dead": 6,
+    "number_of_houses_damaged": null,
+    "number_of_houses_destroyed": null,
+    "number_of_people_missing": null,
+    "number_of_people_injured": null,
+    "number_of_people_displaced": null,
+}
+
 const districts = [
     {
         "id": 974,
@@ -140,32 +182,45 @@ const districts = [
     }
 ]
 
+
 document.addEventListener('DOMContentLoaded', () => {
-    mapboxgl.accessToken = 'pk.eyJ1IjoiZ28taWZyYyIsImEiOiJjams3b2ZhZWswMGFvM3hxeHp2ZHFhOTRrIn0._pqO9OQ2iNeDGrpopJNjpg';
-    document.getElementById('main-heading').textContent = data.event_title;
-    document.getElementById('date').textContent = `${data.event_start_date} to ${data.event_end_date}`;
+    mapboxgl.accessToken = 'pk.eyJ1IjoidG9nZ2xlY29ycCIsImEiOiJjazk5ZXMza2YxZmQ1M2dvNWxneTEycnQwIn0.K3u-ns63rFzM7CzrnOBm2w';
+    document.getElementById('main-heading').textContent = noaa_data.event_title;
+    document.getElementById('date').textContent = `${noaa_data.event_start_date} to ${noaa_data.event_end_date}`;
     const template = document.getElementById('legend-item-template');
     const legend = document.getElementById('legend-items');
-    const affectedAreas = [
+    const emdat_legend = document.getElementById('legend-emdat-items')
+    const noaa_affectedAreas = [
         ...new Set(
-            data.admin1.split(',').map(
+            noaa_data.admin1.split(',').map(
                 a => a.trim().replace(/(^'|'$)/g, '').trim()
             )
         )
     ];
-    affectedAreas.forEach((area) => {
+    noaa_affectedAreas.forEach((area) => {
         const legendItem = template.content.cloneNode(true);
         legendItem.children[0].textContent = area;
         legend.appendChild(legendItem);
     });
+    const emdat_affectedAreas = [
+        ...new Set(
+            emdat_data.admin2.split(',').map(
+                a => a.trim().replace(/(^'|'$)/g, '').trim()
+            )
+        )
+    ];
+    emdat_affectedAreas.forEach((area) => {
+        const legendItem = template.content.cloneNode(true);
+        legendItem.children[0].textContent = area;
+        emdat_legend.appendChild(legendItem);
+    });
 
     const map = new mapboxgl.Map({
         container: 'map-container',
-        style: 'mapbox://styles/go-ifrc/ckrfe16ru4c8718phmckdfjh0',
+        style: 'mapbox://styles/togglecorp/cl10mzqt0002f14ml4gi1grb1',
         zoom: 9,
         scrollZoom: false,
     });
-
     const geojson = {
         type: 'FeatureCollection',
         features: [
@@ -173,25 +228,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 type: 'Feature',
                 geometry: {
                     type: 'LineString',
-                    coordinates: data.geo_coordinates.map(d => d.geom.coordinates).flat(1),
+                    coordinates: noaa_data.geo_coordinates.map(d => d.geom.coordinates).flat(1),
                 },
             }
         ],
     };
 
     map.on('load', () => {
+        console.info(map?.style?._layers);
         map.setLayoutProperty(
-            'admin-1-highlight',
+            'admin-2-highlight',
             'visibility',
             'visible',
         );
 
         map.setPaintProperty(
-            'admin-1-highlight',
+            'admin-2-highlight',
             'fill-color',
             '#eaeaea',
         );
-
         map.addControl(new mapboxgl.NavigationControl(), 'top-right');
         map.fitBounds([
             176.8997,
@@ -219,16 +274,17 @@ document.addEventListener('DOMContentLoaded', () => {
             },
         });
 
-        map.on('mouseover', 'admin-1-highlight', (e) => {
+        map.on('mouseover', 'admin-2-highlight', (e) => {
             const features = e.features[0];
-            if (affectedAreas.findIndex(a => a === features.properties.name) !== -1) {
+            if (emdat_affectedAreas.findIndex(a => a === features.properties.shapeName) !== -1) {
+                console.log(features.properties.shapeName)
                 map.setPaintProperty(
-                    'admin-1-highlight',
+                    'admin-2-highlight',
                     'fill-color',
                     [
                         'match',
-                        ['get', 'district_id'],
-                        features.properties.district_id,
+                        ['get', 'shapeName'],
+                        features.properties.shapeName,
                         '#f00000',
                         '#eaeaea',
                     ],
@@ -236,9 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        map.on('mouseleave', 'admin-1-highlight', () => {
+        map.on('mouseleave', 'admin-2-highlight', () => {
             map.setPaintProperty(
-                'admin-1-highlight',
+                'admin-2-highlight',
                 'fill-color',
                 '#eaeaea',
             );
